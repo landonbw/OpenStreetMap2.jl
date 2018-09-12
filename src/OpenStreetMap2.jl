@@ -3,7 +3,7 @@ __precompile__()
 
 module OpenStreetMap2
 
-    import ProtoBuf, EzXML, CodecZlib, HTTP, LightGraphs, DataStructures
+    import ProtoBuf, EzXML, CodecZlib, HTTP, LightGraphs, DataStructures, Compat
 
     include("types.jl")
     include("io.jl")
