@@ -155,29 +155,29 @@ end
 readxmlfile(filename::String, osmdata::OSMData = OSMData()) =
     readxmlstream(open(filename, "r"), osmdata)
 
-"Returns the overpass query within `bounds`"
-function overpassquery(bounds::String; timeout::Int = 25)
-    result = Requests.get(
-        "https://overpass-api.de/api/interpreter",
-        query = Dict("data" => """
-        [out:xml][timeout:$timeout];
-        (
-          node($bounds);
-          way($bounds);
-          relation($bounds);
-        );
-        out body;
-        >;
-        out skel qt;
-        """)
-    )
-    readxmlstream(IOBuffer(result.data))
-end
+# "Returns the overpass query within `bounds`"
+# function overpassquery(bounds::String; timeout::Int = 25)
+#     result = Requests.get(
+#         "https://overpass-api.de/api/interpreter",
+#         query = Dict("data" => """
+#         [out:xml][timeout:$timeout];
+#         (
+#           node($bounds);
+#           way($bounds);
+#           relation($bounds);
+#         );
+#         out body;
+#         >;
+#         out skel qt;
+#         """)
+#     )
+#     readxmlstream(IOBuffer(result.data))
+# end
 
-"Returns the overpass query with `bbox = (minlon, minlat, maxlon, maxlat)`"
-overpassquery(bbox::NTuple{4,Float64}; kwargs...) =
-    overpassquery("$(bbox[1]),$(bbox[2]),$(bbox[3]),$(bbox[4])", kwargs...)
+# "Returns the overpass query with `bbox = (minlon, minlat, maxlon, maxlat)`"
+# overpassquery(bbox::NTuple{4,Float64}; kwargs...) =
+#     overpassquery("$(bbox[1]),$(bbox[2]),$(bbox[3]),$(bbox[4])", kwargs...)
 
-"Returns the overpass query within a `radius` (in meters) around `lonlat`"
-overpassquery(lonlat::Tuple{Float64,Float64}, radius::Real; kwargs...) =
-    overpassquery("around:$radius,$(lonlat[1]),$(lonlat[2])", kwargs...)
+# "Returns the overpass query within a `radius` (in meters) around `lonlat`"
+# overpassquery(lonlat::Tuple{Float64,Float64}, radius::Real; kwargs...) =
+#     overpassquery("around:$radius,$(lonlat[1]),$(lonlat[2])", kwargs...)
