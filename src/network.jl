@@ -1,7 +1,7 @@
 struct OSMNetwork
     g::LightGraphs.DiGraph
     data::OSMData
-    distmx::SparseMatrixCSC{Float64, Int}
+    distmx::SparseArrays.SparseMatrixCSC{Float64, Int}
     nodeid::Dict{Int,Int} # osm_id -> node_id
     connectednodes::Vector{Int}
     wayids::Vector{Int} # [osm_id, ... osm_id]
@@ -61,7 +61,7 @@ function osmnetwork(osmdata::OSMData, access::Dict{String,Symbol}=ACCESS["all"])
     edges = reinterpret(Int,collect(edgeset))
     I = edges[1:2:end] # collect all start nodes
     J = edges[2:2:end] # collect all end nodes
-    distmx = sparse(I,J,[distance(i,j) for (i,j) in zip(I,J)],numnodes,numnodes)
+    distmx = SparseArrays.sparse(I,J,[distance(i,j) for (i,j) in zip(I,J)],numnodes,numnodes)
 
     OSMNetwork(LightGraphs.DiGraph(distmx), osmdata, distmx, nodeid, connectednodes, wayids)
 end

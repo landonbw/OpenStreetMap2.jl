@@ -1,0 +1,14 @@
+name = "OpenStreetMap2"
+uuid = "b4cd1eb8-1e24-11e8-3319-93036a3eb9f3"
+author = ["Some One <someone@email.com>"]
+version = "0.0.0"
+
+[deps]
+CodecZlib = "944b1d66-785c-5afd-91f1-9de20f533193"
+Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
+DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
+EzXML = "8f5d6c58-4d21-5cfd-889c-e3ad7ee6a615"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+LightGraphs = "093fc24a-ae57-5d10-9952-331d41423f4d"
+ProtoBuf = "3349acd9-ac6a-5e09-bcdb-63829b23a429"
+SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"

@@ -4,7 +4,7 @@ using ProtoBuf
 import ProtoBuf.meta
 import Base: hash, isequal, ==
 
-type HeaderBBox
+mutable struct HeaderBBox
     left::Int64
     right::Int64
     top::Int64
@@ -18,7 +18,7 @@ hash(v::HeaderBBox) = ProtoBuf.protohash(v)
 isequal(v1::HeaderBBox, v2::HeaderBBox) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::HeaderBBox, v2::HeaderBBox) = ProtoBuf.protoeq(v1, v2)
 
-type HeaderBlock
+mutable struct HeaderBlock
     bbox::HeaderBBox
     required_features::Array{AbstractString,1}
     optional_features::Array{AbstractString,1}
@@ -35,7 +35,7 @@ hash(v::HeaderBlock) = ProtoBuf.protohash(v)
 isequal(v1::HeaderBlock, v2::HeaderBlock) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::HeaderBlock, v2::HeaderBlock) = ProtoBuf.protoeq(v1, v2)
 
-type StringTable
+mutable struct StringTable
     s::Array{Array{UInt8,1},1}
     StringTable(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
 end #type StringTable
@@ -43,7 +43,7 @@ hash(v::StringTable) = ProtoBuf.protohash(v)
 isequal(v1::StringTable, v2::StringTable) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::StringTable, v2::StringTable) = ProtoBuf.protoeq(v1, v2)
 
-type Info
+mutable struct Info
     version::Int32
     timestamp::Int64
     changeset::Int64
@@ -58,7 +58,7 @@ hash(v::Info) = ProtoBuf.protohash(v)
 isequal(v1::Info, v2::Info) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::Info, v2::Info) = ProtoBuf.protoeq(v1, v2)
 
-type DenseInfo
+mutable struct DenseInfo
     version::Array{Int32,1}
     timestamp::Array{Int64,1}
     changeset::Array{Int64,1}
@@ -74,7 +74,7 @@ hash(v::DenseInfo) = ProtoBuf.protohash(v)
 isequal(v1::DenseInfo, v2::DenseInfo) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::DenseInfo, v2::DenseInfo) = ProtoBuf.protoeq(v1, v2)
 
-type ChangeSet
+mutable struct ChangeSet
     id::Int64
     ChangeSet(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
 end #type ChangeSet
@@ -84,7 +84,7 @@ hash(v::ChangeSet) = ProtoBuf.protohash(v)
 isequal(v1::ChangeSet, v2::ChangeSet) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::ChangeSet, v2::ChangeSet) = ProtoBuf.protoeq(v1, v2)
 
-type Node
+mutable struct Node
     id::Int64
     keys::Array{UInt32,1}
     vals::Array{UInt32,1}
@@ -102,7 +102,7 @@ hash(v::Node) = ProtoBuf.protohash(v)
 isequal(v1::Node, v2::Node) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::Node, v2::Node) = ProtoBuf.protoeq(v1, v2)
 
-type DenseNodes
+mutable struct DenseNodes
     id::Array{Int64,1}
     denseinfo::DenseInfo
     lat::Array{Int64,1}
@@ -118,7 +118,7 @@ hash(v::DenseNodes) = ProtoBuf.protohash(v)
 isequal(v1::DenseNodes, v2::DenseNodes) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::DenseNodes, v2::DenseNodes) = ProtoBuf.protoeq(v1, v2)
 
-type Way
+mutable struct Way
     id::Int64
     keys::Array{UInt32,1}
     vals::Array{UInt32,1}
@@ -135,7 +135,7 @@ hash(v::Way) = ProtoBuf.protohash(v)
 isequal(v1::Way, v2::Way) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::Way, v2::Way) = ProtoBuf.protoeq(v1, v2)
 
-type __enum_Relation_MemberType <: ProtoEnum
+mutable struct __enum_Relation_MemberType <: ProtoEnum
     NODE::Int32
     WAY::Int32
     RELATION::Int32
@@ -143,7 +143,7 @@ type __enum_Relation_MemberType <: ProtoEnum
 end #type __enum_Relation_MemberType
 const Relation_MemberType = __enum_Relation_MemberType()
 
-type Relation
+mutable struct Relation
     id::Int64
     keys::Array{UInt32,1}
     vals::Array{UInt32,1}
@@ -162,7 +162,7 @@ hash(v::Relation) = ProtoBuf.protohash(v)
 isequal(v1::Relation, v2::Relation) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::Relation, v2::Relation) = ProtoBuf.protoeq(v1, v2)
 
-type PrimitiveGroup
+mutable struct PrimitiveGroup
     nodes::Array{Node,1}
     dense::DenseNodes
     ways::Array{Way,1}
@@ -174,7 +174,7 @@ hash(v::PrimitiveGroup) = ProtoBuf.protohash(v)
 isequal(v1::PrimitiveGroup, v2::PrimitiveGroup) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::PrimitiveGroup, v2::PrimitiveGroup) = ProtoBuf.protoeq(v1, v2)
 
-type PrimitiveBlock
+mutable struct PrimitiveBlock
     stringtable::StringTable
     primitivegroup::Array{PrimitiveGroup,1}
     granularity::Int32

@@ -3,9 +3,9 @@ __precompile__()
 
 module OpenStreetMap2
 
-    import ProtoBuf, EzXML, CodecZlib, HTTP, LightGraphs, DataStructures, Compat
+    import ProtoBuf, EzXML, CodecZlib, HTTP, LightGraphs, DataStructures, Compat, SparseArrays
 
-    greet() = println("Welcome to heaven")
+    greet() = println("Howdy")
 
     include("types.jl")
     include("io.jl")

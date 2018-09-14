@@ -4,7 +4,7 @@ using ProtoBuf
 import ProtoBuf.meta
 import Base: hash, isequal, ==
 
-type Blob
+mutable struct Blob
     raw::Array{UInt8,1}
     raw_size::Int32
     zlib_data::Array{UInt8,1}
@@ -16,7 +16,7 @@ hash(v::Blob) = ProtoBuf.protohash(v)
 isequal(v1::Blob, v2::Blob) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::Blob, v2::Blob) = ProtoBuf.protoeq(v1, v2)
 
-type BlobHeader
+mutable struct BlobHeader
     _type::AbstractString
     indexdata::Array{UInt8,1}
     datasize::Int32
