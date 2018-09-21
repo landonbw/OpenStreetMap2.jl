@@ -34,7 +34,7 @@ function osmnetwork(osmdata::OSMData, access::Dict{String,Symbol}=ACCESS["all"])
         lat2 = osmdata.nodes.lat[n2]; lon2 = osmdata.nodes.lon[n2]
         dlat = toradians(lat2 - lat1); dlon = toradians(lon2 - lon1)
         a = sin(dlat/2)^2+sin(dlon/2)^2*cos(toradians(lat1))*cos(toradians(lat2))
-        2.0 * atan2(sqrt(a), sqrt(1-a)) * 6373.0
+        2.0 * atan(sqrt(a), sqrt(1-a)) * 6373.0
     end
     
     wayids = filter(hasaccess, filter(ishighway, collect(keys(osmdata.ways))))

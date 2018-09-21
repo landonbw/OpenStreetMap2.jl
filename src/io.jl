@@ -111,7 +111,7 @@ function readxmlstream(
         if typ == EzXML.READER_ELEMENT
             elname = EzXML.nodename(reader)
             if elname == "bounds"
-                warn("we currently do not handle element: $elname")
+                @warn "we currently do not handle element: $elname"
             elseif elname == "member"
                 @assert currentelement == "relation"
                 push!(osmdata.relations[currentid]["role"], reader["role"])
@@ -127,7 +127,7 @@ function readxmlstream(
                 push!(osmdata.nodes.lat, parse(Float64, reader["lat"]))
                 push!(osmdata.nodes.lon, parse(Float64, reader["lon"]))
             elseif elname == "osm"
-                warn("we currently do not handle element: $elname")
+                @warn "we currently do not handle element: $elname"
             elseif elname == "relation"
                 currentelement = "relation"
                 currentid = parse(Int,reader["id"])
@@ -144,7 +144,7 @@ function readxmlstream(
                 currentid = parse(Int,reader["id"])
                 osmdata.ways[currentid] = Int[]
             else
-                warn("unrecognized element: $elname")
+                @warn "unrecognized element: $elname"
             end
         end
     end
