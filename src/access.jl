@@ -503,3 +503,28 @@ const FEATURE_CLASSES = Dict(
     "tourism"           => 25,
     "waterway"          => 26
 )
+
+MAP_COLORS = Dict(
+    "motorway" => :red,
+    "motorway_link" => :red,
+    "trunk" => :blue,
+    "trunk_link" => :blue,
+    "primary" => :yellow,
+    "primary_link" => :yellow,
+    "secondary" => :yellow,
+    "secondary_link" => :yellow,
+    "tertiary" => :yellow,
+    "tertiary_link" => :yellow,
+    "unclassified" => :black,
+    "residential" => :teal,
+    "living_street" => :teal,
+    "street" => :teal,
+    "track" => :black,
+    "service" => :orange,
+    "road" => :green,
+    "pedestrian" => :black,
+    "path" => :black,
+    "bridleway" => :black,
+    "cycleway" => :black,
+    "footway" => :black
+)
