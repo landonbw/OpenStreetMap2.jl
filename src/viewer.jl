@@ -55,7 +55,7 @@ end
 function plotmap(waypoints::OSMPaths)
     latpaths = waypoints.latpaths
     lonpaths = waypoints.lonpaths
-    p = Plots.plot()
+    p = newplot()
     for pathtype in waypoints.pathtypes
         nlines = size(lonpaths[pathtype], 1)
         if nlines == 0
@@ -76,9 +76,23 @@ function plotmap(osmdata::OSMData, access::Dict{String,Symbol}=ACCESS["motorcar"
     plotmap(ways)
 end
 
+function newplot()
+    return Plots.plot(size=[1200,1000])
+end
 
+function plotosm(osmdata::OSMData; access::Dict{String, Symbol}=ACCESS["motorcar"], baseplot::Plots.Plot=newplot(), kwargs...)
+    kwargs = collect(kwargs)
+    hasaccess(ty::String) = !(access[ty] == :no)
+    hasaccess(pair::Pair{String, Symbol}) = pair.second != :no
+    accessable = filter(hasaccess, access)
+    for pathtype in collect(keys(accessable))
+        baseplot = plotfeature(osmdata, "highway", pathtype, baseplot, color=MAP_COLORS[pathtype]; kwargs...)
+    end
+    Plots.gui()
+    return baseplot
+end
 
-function plotfeature(osmdata::OSMData, key::String, value::String, baseplot::Plots.Plot=Plots.plot(); kwargs...)
+function plotfeature(osmdata::OSMData, key::String, value::String, baseplot::Plots.Plot=newplot(); kwargs...)
     tags(w::Int) = get(osmdata.tags, w, Dict{String,String}())
     isfeature(w::Int) = get(tags(w), key, "") == value
     wayids = filter(isfeature, collect(keys(osmdata.tags)))
@@ -106,4 +120,24 @@ function plotfeature(osmdata::OSMData, key::String, value::String, baseplot::Plo
         push!(lons, lon)
     end
     p = Plots.plot!(baseplot, lons, lats; kwargs...)
+end
+
+function plotnodesequence(osmdata::OSMData, nodes::Array{Int64,1}, baseplot::Plots.Plot; kwargs...)
+    lats = Array{Float64, 1}()
+    lons = Array{Float64, 1}()
+    numnodes = length(osmdata.nodes.id)
+    nodeid = Dict(zip(osmdata.nodes.id, 1:numnodes))
+    for node in nodes
+        push!(lats, osmdata.nodes.lat[nodeid[node]])
+        push!(lons, osmdata.nodes.lon[nodeid[node]])
+    end
+    p = Plots.plot!(baseplot, lons, lats; kwargs...)
+end
+
+function plotedgearray(network::OSMNetwork, edges::Array{LightGraphs.SimpleGraphs.SimpleEdge, 1}, baseplot::Plots.Plot=newplot(); kwargs...)
+    lightgraphpath = LightGraphs.src.(edges)
+    push!(lightgraphpath, LightGraphs.dst(edges[end]))
+    maptoosmid = map(reverse, pairs(network.nodeid))
+    osmpath = [maptoosmid[lightgraphid] for lightgraphid in lightgraphpath]
+    p = plotnodesequence(network.data, osmpath, baseplot; kwargs...)
 end

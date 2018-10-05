@@ -63,7 +63,7 @@ function osmnetwork(osmdata::OSMData, access::Dict{String,Symbol}=ACCESS["all"])
     J = edges[2:2:end] # collect all end nodes
     distmx = SparseArrays.sparse(I,J,[distance(i,j) for (i,j) in zip(I,J)],numnodes,numnodes)
 
-    OSMNetwork(LightGraphs.DiGraph(distmx), osmdata, distmx, nodeid, connectednodes, wayids)
+    OSMNetwork(LightGraphs.SimpleDiGraph(distmx), osmdata, distmx, nodeid, connectednodes, wayids)
 end
 
 osmnetwork(osmdata::OSMData, access::String) = osmnetwork(osmdata, ACCESS[access])
