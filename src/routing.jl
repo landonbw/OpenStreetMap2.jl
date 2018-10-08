@@ -59,6 +59,17 @@ function nearestnode(network::OSMNetwork, coords::Tuple{Float64, Float64})
     nodelats = network.data.nodes.lat[idxinset]
     nodelons = network.data.nodes.lon[idxinset]
     distances = [LinearAlgebra.norm(collect(coords) - [a, b]) for (a,b) in zip(nodelats, nodelons)]
+    println(minimum(distances))
     nearest = nodes[findfirst(distances .== minimum(distances))]
     return nearest
+end
+
+function treenearestnode(network::OSMNetwork, coords::Tuple{Float64, Float64})
+    lat = coords[1]
+    lon = coords[2]
+    idx, dist = NearestNeighbors.knn(network.nntree, [lat, lon], 1)
+    println(dist)
+    nearestcoords = network.nntree.data[idx][1]
+    nodeidx = findfirst((network.data.nodes.lat .== nearestcoords[1]) .& (network.data.nodes.lon .== nearestcoords[2]))
+    return network.data.nodes.id[nodeidx]
 end

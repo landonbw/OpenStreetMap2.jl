@@ -5,6 +5,7 @@ struct OSMNetwork
     nodeid::Dict{Int,Int} # osm_id -> node_id
     connectednodes::Vector{Int}
     wayids::Vector{Int} # [osm_id, ... osm_id]
+    nntree::NearestNeighbors.KDTree
     # edgeid::Dict{Tuple{Int,Int},Int}
 end
 
@@ -43,6 +44,7 @@ function osmnetwork(osmdata::OSMData, access::Dict{String,Symbol}=ACCESS["all"])
 
     edgeset = Set{Tuple{Int,Int}}()
     nodeset = Set{Int}()
+    latlon = Set{Array{Float64, 1}}()
     for w in wayids
         way = osmdata.ways[w]
         rev, nrev = isreverse(w), !isreverse(w)
@@ -54,6 +56,8 @@ function osmnetwork(osmdata::OSMData, access::Dict{String,Symbol}=ACCESS["all"])
 
             push!(nodeset, n0); push!(nodeset, n1)
             push!(edgeset, (startnode, endnode))
+            push!(latlon, [osmdata.nodes.lat[n0], osmdata.nodes.lon[n0]])
+            push!(latlon, [osmdata.nodes.lat[n1], osmdata.nodes.lon[n1]])
             isoneway(w) || push!(edgeset, (endnode, startnode))
         end
     end
@@ -68,9 +72,10 @@ function osmnetwork(osmdata::OSMData, access::Dict{String,Symbol}=ACCESS["all"])
     # distmx = SparseArrays.sparse(I,J,[distance(i,j) for (i,j) in zip(I,J)],numnodes,numnodes)
     distmx = SparseArrays.sparse(Iids, Jids, [distance(i,j) for (i,j) in zip(I,J)], length(roadnodes), length(roadnodes))
     mapgraphtoosmid = Dict(zip(1:length(roadnodes), osmdata.nodes.id[roadnodes]))
-    mapgraphtoosmid
+    latlonArray = hcat(collect(latlon)...)
+    tree = NearestNeighbors.KDTree(latlonArray)
 
-    OSMNetwork(LightGraphs.SimpleDiGraph(distmx), osmdata, distmx, mapgraphtoosmid, connectednodes, wayids)
+    OSMNetwork(LightGraphs.SimpleDiGraph(distmx), osmdata, distmx, mapgraphtoosmid, connectednodes, wayids, tree)
 end
 
 
