@@ -59,11 +59,19 @@ function osmnetwork(osmdata::OSMData, access::Dict{String,Symbol}=ACCESS["all"])
     end
     connectednodes = collect(nodeset)
     edges = reinterpret(Int,collect(edgeset))
+    roadnodes = unique(edges)
     I = edges[1:2:end] # collect all start nodes
     J = edges[2:2:end] # collect all end nodes
-    distmx = SparseArrays.sparse(I,J,[distance(i,j) for (i,j) in zip(I,J)],numnodes,numnodes)
+    # [println(i) for i in I]
+    Iids = [findfirst(!iszero, roadnodes.==node) for node in I]
+    Jids = [findfirst(!iszero, roadnodes.==node) for node in J]
+    # distmx = SparseArrays.sparse(I,J,[distance(i,j) for (i,j) in zip(I,J)],numnodes,numnodes)
+    distmx = SparseArrays.sparse(Iids, Jids, [distance(i,j) for (i,j) in zip(I,J)], length(roadnodes), length(roadnodes))
+    mapgraphtoosmid = Dict(zip(1:length(roadnodes), osmdata.nodes.id[roadnodes]))
+    mapgraphtoosmid
 
-    OSMNetwork(LightGraphs.SimpleDiGraph(distmx), osmdata, distmx, nodeid, connectednodes, wayids)
+    OSMNetwork(LightGraphs.SimpleDiGraph(distmx), osmdata, distmx, mapgraphtoosmid, connectednodes, wayids)
 end
+
 
 osmnetwork(osmdata::OSMData, access::String) = osmnetwork(osmdata, ACCESS[access])
