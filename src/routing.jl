@@ -46,3 +46,19 @@ function shortestpath(
     dists = fill(Inf,LightGraphs.nv(network.g))
     shortestpath!(network, srcs, DijkstraState(parents,dists), threshold)
 end
+
+"""
+find the nearest osm node that is on a roadway to the specified lat lon tuple
+"""
+function nearestnode(network::OSMNetwork, coords::Tuple{Float64, Float64})
+    lat = coords[1]
+    lon = coords[2]
+    roadnodes = values(network.nodeid)
+    idxinset = findall(x -> x in roadnodes, network.data.nodes.id)
+    nodes = network.data.nodes.id[idxinset]
+    nodelats = network.data.nodes.lat[idxinset]
+    nodelons = network.data.nodes.lon[idxinset]
+    distances = [LinearAlgebra.norm(collect(coords) - [a, b]) for (a,b) in zip(nodelats, nodelons)]
+    nearest = nodes[findfirst(distances .== minimum(distances))]
+    return nearest
+end

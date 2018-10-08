@@ -2,8 +2,8 @@
 __precompile__()
 
 module OpenStreetMap2
-    import ProtoBuf, EzXML, CodecZlib, HTTP, LightGraphs, DataStructures, Compat, SparseArrays, Plots
-    
+    import ProtoBuf, EzXML, CodecZlib, HTTP, LightGraphs, DataStructures, Compat, SparseArrays, Plots, LinearAlgebra
+
     Plots.gr()
     include("types.jl")
     include("io.jl")
