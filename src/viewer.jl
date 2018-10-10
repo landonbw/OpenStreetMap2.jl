@@ -16,8 +16,7 @@ function osmways(osmdata::OSMData, access::Dict{String,Symbol}=ACCESS["motorcar"
     noaccess = get.(Ref(access), collect(keys(access)), :no).==:no
     approvedpaths = pathtypes[.!noaccess]
 
-    numnodes = length(osmdata.nodes.id)
-    nodeid = Dict(zip(osmdata.nodes.id, 1:numnodes))
+    numnodes = length(keys(osmdata.nodes))
     # store each type of path in an array that we can pass to the plot command
     latPaths = Dict{String, Array{Array{Float64, 1},1}}()
     lonPaths = Dict{String, Array{Array{Float64, 1},1}}()
@@ -31,9 +30,10 @@ function osmways(osmdata::OSMData, access::Dict{String,Symbol}=ACCESS["motorcar"
         lon=[]
         way = osmdata.ways[wayid]
         for ii in 1:length(osmdata.ways[wayid])
-            if haskey(nodeid, way[ii])
-                push!(lat, osmdata.nodes.lat[nodeid[way[ii]]])
-                push!(lon, osmdata.nodes.lon[nodeid[way[ii]]])
+            if haskey(osmdata.nodes, way[ii])
+                (nodelat, nodelon) = osmdata.nodes[way[ii]]
+                push!(lat, nodelat)
+                push!(lon, nodelon)
             else
                 println("couldn't find node $(way[ii])")
             end
@@ -97,8 +97,7 @@ function plotfeature(osmdata::OSMData, key::String, value::String, baseplot::Plo
     isfeature(w::Int) = get(tags(w), key, "") == value
     wayids = filter(isfeature, collect(keys(osmdata.tags)))
 
-    numnodes = length(osmdata.nodes.id)
-    nodeid = Dict(zip(osmdata.nodes.id, 1:numnodes))
+    numnodes = length(keys(osmdata.nodes))
 
     lats = Array{Array{Float64, 1},1}()
     lons = Array{Array{Float64, 1},1}()
@@ -109,9 +108,10 @@ function plotfeature(osmdata::OSMData, key::String, value::String, baseplot::Plo
         way = get(osmdata.ways, wayid, Array{Float64,1}(undef,1))
         # way = osmdata.ways[wayid]
         for ii in 1:length(way)
-            if haskey(nodeid, way[ii])
-                push!(lat, osmdata.nodes.lat[nodeid[way[ii]]])
-                push!(lon, osmdata.nodes.lon[nodeid[way[ii]]])
+            if haskey(osmdata.nodes, way[ii])
+                (nodelat, nodelon) = osmdata.nodes[way[ii]]
+                push!(lat, nodelat)
+                push!(lon, nodelon)
             else
                 # println("couldn't find node $(way[ii])")
             end
@@ -125,11 +125,14 @@ end
 function plotnodesequence(osmdata::OSMData, nodes::Array{Int64,1}, baseplot::Plots.Plot; kwargs...)
     lats = Array{Float64, 1}()
     lons = Array{Float64, 1}()
-    numnodes = length(osmdata.nodes.id)
-    nodeid = Dict(zip(osmdata.nodes.id, 1:numnodes))
+    # numnodes = length(osmdata.nodes.id)
+    # nodeid = Dict(zip(osmdata.nodes.id, 1:numnodes))
     for node in nodes
-        push!(lats, osmdata.nodes.lat[nodeid[node]])
-        push!(lons, osmdata.nodes.lon[nodeid[node]])
+        (nodelat, nodelon) = osmdata.nodes[node]
+        push!(lats, nodelat)
+        push!(lons, nodelon)
+        # push!(lats, osmdata.nodes.lat[nodeid[node]])
+        # push!(lons, osmdata.nodes.lon[nodeid[node]])
     end
     p = Plots.plot!(baseplot, lons, lats; kwargs...)
 end

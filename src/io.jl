@@ -124,11 +124,7 @@ function readxmlstream(
                 currentelement = "node"
                 currentid = parse(Int,reader["id"])
                 id = parse(Int, reader["id"])
-                if !(id in osmdata.nodes.id)
-                    push!(osmdata.nodes.id, id)
-                    push!(osmdata.nodes.lat, parse(Float64, reader["lat"]))
-                    push!(osmdata.nodes.lon, parse(Float64, reader["lon"]))
-                end
+                osmdata.nodes[id] = (parse(Float64, reader["lat"]), parse(Float64, reader["lon"]))
             elseif elname == "osm"
                 @warn "we currently do not handle element: $elname"
             elseif elname == "relation"
