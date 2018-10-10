@@ -11,5 +11,6 @@ module OpenStreetMap2
     include("network.jl")
     include("routing.jl")
     include("viewer.jl")
+    include("helper.jl")
 
 end
