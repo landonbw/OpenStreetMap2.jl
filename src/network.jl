@@ -73,7 +73,7 @@ function osmnetwork(osmdata::OSMData, access::Dict{String,Symbol}=ACCESS["all"])
     distmx = SparseArrays.sparse(Iids, Jids, [distance(i,j) for (i,j) in zip(I,J)], length(roadnodes), length(roadnodes))
     mapgraphtoosmid = Dict(zip(1:length(roadnodes), osmdata.nodes.id[roadnodes]))
     latlonArray = hcat(collect(latlon)...)
-    tree = NearestNeighbors.KDTree(latlonArray)
+    tree = NearestNeighbors.KDTree(latlonArray; leafsize=30000)
 
     OSMNetwork(LightGraphs.SimpleDiGraph(distmx), osmdata, distmx, mapgraphtoosmid, connectednodes, wayids, tree)
 end
