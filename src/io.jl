@@ -180,3 +180,6 @@ overpassquery(bbox::NTuple{4,Float64}; kwargs...) =
 "Returns the overpass query within a `radius` (in meters) around `lonlat`"
 overpassquery(lonlat::Tuple{Float64,Float64}, radius::Real; kwargs...) =
     overpassquery("around:$radius,$(lonlat[1]),$(lonlat[2])", kwargs...)
+
+"""get some data now!!!"""
+getmedata(radius=1000) = overpassquery((40.234982, -111.676414), radius)
