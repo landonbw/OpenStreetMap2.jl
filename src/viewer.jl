@@ -140,6 +140,10 @@ end
 function plotedgearray(network::OSMNetwork, edges::Array{LightGraphs.SimpleGraphs.SimpleEdge, 1}, baseplot::Plots.Plot=newplot(); kwargs...)
     lightgraphpath = LightGraphs.src.(edges)
     push!(lightgraphpath, LightGraphs.dst(edges[end]))
-    osmpath = [network.nodeid[lightgraphid] for lightgraphid in lightgraphpath]
+    p = plotLGnodesequence(network, lightgraphpath, baseplot; kwargs...) 
+end
+
+function plotLGnodesequence(network::OSMNetwork, nodes::Array{Int64,1}, baseplot::Plots.Plot=newplot(); kwargs...)
+    osmpath = [network.nodeid[lightgraphid] for lightgraphid in nodes]
     p = plotnodesequence(network.data, osmpath, baseplot; kwargs...)
 end
