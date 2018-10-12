@@ -53,14 +53,16 @@ find the nearest osm node that is on a roadway to the specified lat lon tuple
 function nearestnode(network::OSMNetwork, coords::Tuple{Float64, Float64})
     lat = coords[1]
     lon = coords[2]
-    roadnodes = values(network.nodeid)
-    idxinset = findall(x -> x in roadnodes, network.data.nodes.id)
-    nodes = network.data.nodes.id[idxinset]
-    nodelats = network.data.nodes.lat[idxinset]
-    nodelons = network.data.nodes.lon[idxinset]
+    roadnodes = collect(values(network.nodeid))
+    # idxinset = findall(x -> x in roadnodes, network.data.nodes.id)
+    # nodes = get.(network.data.nodes, 
+    # nodes = network.data.nodes.id[idxinset]
+    latlons = get.(network.data.nodes, roadnodes, 99999)
+    nodelats = [a[1] for a in latlons]
+    nodelons = [a[2] for a in latlons]
     distances = [LinearAlgebra.norm(collect(coords) - [a, b]) for (a,b) in zip(nodelats, nodelons)]
-    println(minimum(distances))
-    nearest = nodes[findfirst(distances .== minimum(distances))]
+    # println(minimum(distances))
+    nearest = roadnodes[findfirst(distances .== minimum(distances))]
     return nearest
 end
 
@@ -68,8 +70,6 @@ function treenearestnode(network::OSMNetwork, coords::Tuple{Float64, Float64})
     lat = coords[1]
     lon = coords[2]
     idx, dist = NearestNeighbors.knn(network.nntree, [lat, lon], 1)
-    println(dist)
-    nearestcoords = network.nntree.data[idx][1]
-    nodeidx = findfirst((network.data.nodes.lat .== nearestcoords[1]) .& (network.data.nodes.lon .== nearestcoords[2]))
-    return network.data.nodes.id[nodeidx]
+    # println(dist)
+    return network.connectednodes[idx[1]]
 end
