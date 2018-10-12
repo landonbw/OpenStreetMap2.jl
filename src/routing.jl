@@ -3,48 +3,71 @@ struct DijkstraState
     dists::Vector{Float64}
 end
 
-function shortestpath!(
-        g::LightGraphs.DiGraph,
-        srcs::Vector{Int},
-        distmx::AbstractMatrix{Float64},
-        ds::DijkstraState,
-        threshold::Float64 = Inf
-    )
-    fill!(ds.dists, Inf); ds.dists[srcs] = zero(Float64)
-    fill!(ds.parents, 0)
-    H = DataStructures.PriorityQueue{Int,Float64}()    
-    for v in srcs; H[v] = ds.dists[v] end
-    while !isempty(H)
-        u, _ = DataStructures.dequeue_pair!(H)
-        @assert ds.dists[u] < Inf
-        for v in LightGraphs.outneighbors(g, u)
-            distv = ds.dists[u] + distmx[u,v]
-            if distv < min(threshold, ds.dists[v])
-                H[v] = ds.dists[v] = distv; ds.parents[v] = u
-            end
-        end
-    end
-    for s in srcs; @assert ds.parents[s] == 0 end
-    ds
+# function shortestpath!(
+#         g::LightGraphs.DiGraph,
+#         srcs::Vector{Int},
+#         distmx::AbstractMatrix{Float64},
+#         ds::DijkstraState,
+#         threshold::Float64 = Inf
+#     )
+#     fill!(ds.dists, Inf); ds.dists[srcs] = zero(Float64)
+#     fill!(ds.parents, 0)
+#     H = DataStructures.PriorityQueue{Int,Float64}()    
+#     for v in srcs; H[v] = ds.dists[v] end
+#     while !isempty(H)
+#         u, _ = DataStructures.dequeue_pair!(H)
+#         @assert ds.dists[u] < Inf
+#         for v in LightGraphs.outneighbors(g, u)
+#             distv = ds.dists[u] + distmx[u,v]
+#             if distv < min(threshold, ds.dists[v])
+#                 H[v] = ds.dists[v] = distv; ds.parents[v] = u
+#             end
+#         end
+#     end
+#     for s in srcs; @assert ds.parents[s] == 0 end
+#     ds
+# end
+
+# function shortestpath!(
+#         network::OSMNetwork,
+#         srcs::Vector{Int},
+#         ds::DijkstraState,
+#         threshold::Float64 = Inf
+#     )
+#     shortestpath!(network.g, srcs, network.distmx, ds, threshold)
+# end
+
+# function shortestpath(
+#         network::OSMNetwork,
+#         srcs::Vector{Int},
+#         threshold::Float64 = Inf
+#     )
+#     parents = zeros(Int,LightGraphs.nv(network.g))
+#     dists = fill(Inf,LightGraphs.nv(network.g))
+#     shortestpath!(network, srcs, DijkstraState(parents,dists), threshold)
+# end
+
+"""
+Find the shortest path between a source and destination
+"""
+function shortestpath(network::OSMNetwork, source::Int64, destination::Int64, distmx=network.distmx)
+    return LightGraphs.enumerate_paths(LightGraphs.dijkstra_shortest_paths(network.g, source, distmx), destination)
 end
 
-function shortestpath!(
-        network::OSMNetwork,
-        srcs::Vector{Int},
-        ds::DijkstraState,
-        threshold::Float64 = Inf
-    )
-    shortestpath!(network.g, srcs, network.distmx, ds, threshold)
+function shortestpath(network::OSMNetwork, source::Tuple{Float64, Float64}, destination::Tuple{Float64, Float64})
+    src = network.nodesource[treenearestnode(network, source)]
+    dst = network.nodesource[treenearestnode(network, destination)]
+    return shortestpath(network, src, dst)
 end
 
-function shortestpath(
-        network::OSMNetwork,
-        srcs::Vector{Int},
-        threshold::Float64 = Inf
-    )
-    parents = zeros(Int,LightGraphs.nv(network.g))
-    dists = fill(Inf,LightGraphs.nv(network.g))
-    shortestpath!(network, srcs, DijkstraState(parents,dists), threshold)
+function quickestpath(network::OSMNetwork, source::Int64, destination::Int64)
+    return shortestpath(network, source, destination, network.distmx .* constructspeedmatrix(network))
+end
+
+function quickestpath(network::OSMNetwork, source::Tuple{Float64, Float64}, destination::Tuple{Float64, Float64})
+    src = network.nodesource[treenearestnode(network, source)]
+    dst = network.nodesource[treenearestnode(network, destination)]
+    return quickestpath(network, src, dst)
 end
 
 """
@@ -72,4 +95,37 @@ function treenearestnode(network::OSMNetwork, coords::Tuple{Float64, Float64})
     idx, dist = NearestNeighbors.knn(network.nntree, [lat, lon], 1)
     # println(dist)
     return network.connectednodes[idx[1]]
+end
+
+"""
+Creates the speed matrix that can be used to determine time to travel to a given location
+note that because julia's sparse arrays don't currently support broacasted division very well
+we the matrix actually stores the inverse speed.
+"""
+function constructspeedmatrix(network::OSMNetwork, access::Dict{String,Symbol}=ACCESS["all"])
+    tags(w::Int) = get(network.data.tags, w, Dict{String,String}())
+    lookup(tags::Dict{String,String}, k::String) = get(tags, k, "")
+    hasaccess(w::Int) = get(access, lookup(tags(w),"highway"), :no) != :no
+    ishighway(w::Int) = haskey(tags(w), "highway")
+    isreverse(w::Int) = lookup(tags(w),"oneway") == "-1"
+    wayids = filter(hasaccess, filter(ishighway, collect(keys(network.data.ways))))
+
+    edgestart = Vector{Int64}()
+    edgeend = Vector{Int64}()
+    edgespeed = Vector{Float64}()
+    for w in wayids
+        way = network.data.ways[w]
+        waytype = network.data.tags[w]["highway"]
+        wayclass = get(ROADCLASSES, waytype, :service)
+        speed = get(SPEEDLIMIT_RURAL, wayclass, 5)
+        for n in 2:length(way)
+            push!(edgestart, way[n-1])
+            push!(edgeend, way[n])
+            push!(edgespeed, speed)
+        end
+    end
+    # return edgestart, edgeend, edgespeed
+    es = get.(Ref(network.nodesource), edgestart, 0)
+    ee = get.(Ref(network.nodesource), edgeend, 0)
+    speedmx = SparseArrays.sparse([es;ee], [ee;es], 1.0./[edgespeed;edgespeed])
 end
