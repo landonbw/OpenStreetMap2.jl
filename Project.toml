@@ -1,7 +1,7 @@
 name = "OpenStreetMap2"
 uuid = "b4cd1eb8-1e24-11e8-3319-93036a3eb9f3"
 author = ["Landon Wright <Landon.wright91@gmail.com>"]
-version = "0.1.0"
+version = "0.0.1"
 
 [deps]
 CodecZlib = "944b1d66-785c-5afd-91f1-9de20f533193"
