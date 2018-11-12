@@ -61,7 +61,16 @@ function shortestpath(network::OSMNetwork, source::Tuple{Float64, Float64}, dest
 end
 
 function quickestpath(network::OSMNetwork, source::Int64, destination::Int64)
-    return shortestpath(network, source, destination, network.distmx .* constructspeedmatrix(network))
+    speedmatrix = network.distmx .* constructspeedmatrix(network)
+    path = shortestpath(network, source, destination, speedmatrix)
+    time = 0
+    dist = 0
+    for i=1:length(path)-1
+        time+=speedmatrix[path[i], path[i+1]]
+        dist+=network.distmx[path[i], path[i+1]]
+    end
+    # time = 10
+    return path, time, dist
 end
 
 function quickestpath(network::OSMNetwork, source::Tuple{Float64, Float64}, destination::Tuple{Float64, Float64})
