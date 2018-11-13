@@ -12,7 +12,7 @@ end
 #     )
 #     fill!(ds.dists, Inf); ds.dists[srcs] = zero(Float64)
 #     fill!(ds.parents, 0)
-#     H = DataStructures.PriorityQueue{Int,Float64}()    
+#     H = DataStructures.PriorityQueue{Int,Float64}()
 #     for v in srcs; H[v] = ds.dists[v] end
 #     while !isempty(H)
 #         u, _ = DataStructures.dequeue_pair!(H)
@@ -70,6 +70,10 @@ function quickestpath(network::OSMNetwork, source::Int64, destination::Int64)
         dist+=network.distmx[path[i], path[i+1]]
     end
     # time = 10
+    if time == dist == 0
+        time = Inf
+        dist = Inf
+    end
     return path, time, dist
 end
 
@@ -87,7 +91,7 @@ function nearestnode(network::OSMNetwork, coords::Tuple{Float64, Float64})
     lon = coords[2]
     roadnodes = collect(values(network.nodeid))
     # idxinset = findall(x -> x in roadnodes, network.data.nodes.id)
-    # nodes = get.(network.data.nodes, 
+    # nodes = get.(network.data.nodes,
     # nodes = network.data.nodes.id[idxinset]
     latlons = get.(network.data.nodes, roadnodes, 99999)
     nodelats = [a[1] for a in latlons]
