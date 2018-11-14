@@ -62,6 +62,10 @@ end
 
 function quickestpath(network::OSMNetwork, source::Int64, destination::Int64)
     speedmatrix = network.distmx .* constructspeedmatrix(network)
+    if source == destination
+        return [], 0, 0
+    end
+    
     path = shortestpath(network, source, destination, speedmatrix)
     time = 0
     dist = 0
