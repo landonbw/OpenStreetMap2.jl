@@ -4,7 +4,7 @@
 # under the terms of the Creative Commons Attribution-ShareAlike 3.0 Unported
 # License and, unless otherwise noted, the GNU Free Documentation License.
 # unversioned, with no invariant sections, front-cover texts, or back-cover texts.
-# 
+#
 # https://en.wikipedia.org/wiki/Wikipedia:Copyrights
 
 """
@@ -286,6 +286,54 @@ const ACCESS = Dict(
         "cycleway" => :no,
         "footway" => :designated
     ),
+    "transportationRoadways" => Dict(
+        "motorway" => :yes,
+        "motorway_link" => :yes,
+        "trunk" => :yes,
+        "trunk_link" => :yes,
+        "primary" => :yes,
+        "primary_link" => :yes,
+        "secondary" => :yes,
+        "secondary_link" => :yes,
+        "tertiary" => :yes,
+        "tertiary_link" => :yes,
+        "unclassified" => :yes,
+        "residential" => :yes,
+        "living_street" => :yes,
+        "street" => :yes,
+        "track" => :yes,
+        "service" => :no,
+        "road" => :yes,
+        "pedestrian" => :no,
+        "path" => :no,
+        "bridleway" => :no,
+        "cycleway" => :no,
+        "footway" => :no
+    ),
+    "primaryTransportationRoadways" => Dict(
+        "motorway" => :yes,
+        "motorway_link" => :yes,
+        "trunk" => :yes,
+        "trunk_link" => :yes,
+        "primary" => :yes,
+        "primary_link" => :yes,
+        "secondary" => :yes,
+        "secondary_link" => :yes,
+        "tertiary" => :yes,
+        "tertiary_link" => :yes,
+        "unclassified" => :no,
+        "residential" => :no,
+        "living_street" => :no,
+        "street" => :no,
+        "track" => :no,
+        "service" => :no,
+        "road" => :no,
+        "pedestrian" => :no,
+        "path" => :no,
+        "bridleway" => :no,
+        "cycleway" => :no,
+        "footway" => :no
+    ),
     "primaryroads" => Dict(
         "motorway" => :yes,
         "motorway_link" => :yes,
@@ -439,8 +487,8 @@ const BUILDING_CLASSES = Dict(
     "Residential"       => 1,
     "semidetached_house"=> 1,
     "static_caravan"    => 1,
-    "terrace"           => 1,       
-    
+    "terrace"           => 1,
+
     "commercial"        => 2,
     "factory"           => 2,
     "industrial"        => 2,
