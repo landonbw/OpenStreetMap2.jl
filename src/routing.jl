@@ -65,7 +65,7 @@ function quickestpath(network::OSMNetwork, source::Int64, destination::Int64)
     if source == destination
         return [], 0, 0
     end
-    
+
     path = shortestpath(network, source, destination, speedmatrix)
     time = 0
     dist = 0
@@ -119,7 +119,8 @@ Creates the speed matrix that can be used to determine time to travel to a given
 note that because julia's sparse arrays don't currently support broacasted division very well
 we the matrix actually stores the inverse speed.
 """
-function constructspeedmatrix(network::OSMNetwork, access::Dict{String,Symbol}=ACCESS["all"])
+function constructspeedmatrix(network::OSMNetwork)
+    access = network.access
     tags(w::Int) = get(network.data.tags, w, Dict{String,String}())
     lookup(tags::Dict{String,String}, k::String) = get(tags, k, "")
     hasaccess(w::Int) = get(access, lookup(tags(w),"highway"), :no) != :no
@@ -144,5 +145,10 @@ function constructspeedmatrix(network::OSMNetwork, access::Dict{String,Symbol}=A
     # return edgestart, edgeend, edgespeed
     es = get.(Ref(network.nodesource), edgestart, 0)
     ee = get.(Ref(network.nodesource), edgeend, 0)
+    # println(size(es),size(ee),size(edgespeed))
+    # println(findall(ee.>1317))
     speedmx = SparseArrays.sparse([es;ee], [ee;es], 1.0./[edgespeed;edgespeed])
+
+    # println("madematrix")
+    speedmx
 end

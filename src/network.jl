@@ -7,6 +7,7 @@ struct OSMNetwork
     connectednodes::Vector{Int}
     wayids::Vector{Int} # [osm_id, ... osm_id]
     nntree::NearestNeighbors.KDTree
+    access::Dict{String,Symbol}
     # edgeid::Dict{Tuple{Int,Int},Int}
 end
 
@@ -38,7 +39,7 @@ function osmnetwork(osmdata::OSMData, access::Dict{String,Symbol}=ACCESS["all"])
         a = sin(dlat/2)^2+sin(dlon/2)^2*cos(toradians(lat1))*cos(toradians(lat2))
         2.0 * atan(sqrt(a), sqrt(1-a)) * 6373.0
     end
-    
+
     wayids = filter(hasaccess, filter(ishighway, collect(keys(osmdata.ways))))
     numnodes = length(osmdata.nodes)
 
@@ -81,8 +82,8 @@ function osmnetwork(osmdata::OSMData, access::Dict{String,Symbol}=ACCESS["all"])
     end
     tree = NearestNeighbors.KDTree(latlonarray; leafsize=30000)
 
-    OSMNetwork(LightGraphs.SimpleDiGraph(distmx), osmdata, distmx, mapgraphtoosmid, 
-                maposmidtograph, roadnodes, wayids, tree)
+    OSMNetwork(LightGraphs.SimpleDiGraph(distmx), osmdata, distmx, mapgraphtoosmid,
+                maposmidtograph, roadnodes, wayids, tree, access)
 end
 
 
