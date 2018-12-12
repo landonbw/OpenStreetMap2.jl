@@ -374,25 +374,25 @@ const ACCESS = Dict(
 # and http://wiki.openstreetmap.org/wiki/Speed_limits for guidance
 
 const SPEEDLIMIT_URBAN = Dict(
-    :motorway       => 95,
-    :trunk          => 72,
-    :primary        => 48,
-    :secondary      => 32,
-    :tertiary       => 22,
-    :residential    => 12,
-    :service        => 8,
-    :pedestrian     => 5
+    :motorway       => 95.,
+    :trunk          => 72.,
+    :primary        => 48.,
+    :secondary      => 32.,
+    :tertiary       => 22.,
+    :residential    => 12.,
+    :service        => 8.,
+    :pedestrian     => 5.
 )
 
 const SPEEDLIMIT_RURAL = Dict(
-    :motorway       => 110,
-    :trunk          => 90,
-    :primary        => 80,
-    :secondary      => 72,
-    :tertiary       => 55,
-    :residential    => 40,
-    :service        => 15,
-    :pedestrian     => 15
+    :motorway       => 110.,
+    :trunk          => 90.,
+    :primary        => 80.,
+    :secondary      => 72.,
+    :tertiary       => 55.,
+    :residential    => 40.,
+    :service        => 15.,
+    :pedestrian     => 15.
 )
 
 const ROADCLASSES = Dict(
