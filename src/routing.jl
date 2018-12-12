@@ -76,7 +76,7 @@ function quickestpath(network::OSMNetwork, source::Int64, destination::Int64,
         dist+=network.distmx[path[i], path[i+1]]
     end
     # time = 10
-    if time == dist == 0
+    if time == dist == 0 && length(path) > 0
         time = Inf
         dist = Inf
     end
@@ -123,7 +123,6 @@ we the matrix actually stores the inverse speed.
 """
 function constructspeedmatrix(network::OSMNetwork,
     speeddict::Dict{Symbol, Float64}=SPEEDLIMIT_RURAL)
-
     access = network.access
     tags(w::Int) = get(network.data.tags, w, Dict{String,String}())
     lookup(tags::Dict{String,String}, k::String) = get(tags, k, "")
@@ -152,7 +151,4 @@ function constructspeedmatrix(network::OSMNetwork,
     # println(size(es),size(ee),size(edgespeed))
     # println(findall(ee.>1317))
     speedmx = SparseArrays.sparse([es;ee], [ee;es], 1.0./[edgespeed;edgespeed])
-
-    # println("madematrix")
-    speedmx
 end
