@@ -119,7 +119,11 @@ function readxmlstream(
                 push!(osmdata.relations[currentid]["type"], Symbol(reader["type"]))
             elseif elname == "nd"
                 @assert currentelement == "way"
-                push!(osmdata.ways[currentid], parse(Int,reader["ref"]))
+                ndid = parse(Int, reader["ref"])
+                push!(osmdata.ways[currentid], ndid)
+                osmdata.nodeparent[ndid] = currentid
+                # println("helloworld")
+                # push!(osmdata.ways[currentid], parse(Int, reader["ref"]))
             elseif elname == "node"
                 currentelement = "node"
                 currentid = parse(Int,reader["id"])
