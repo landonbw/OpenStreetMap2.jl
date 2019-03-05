@@ -1,3 +1,5 @@
+using RecipesBase
+
 struct OSMPaths
     latpaths::Dict{String, Array{Array{Float64,1},1}}
     lonpaths::Dict{String, Array{Array{Float64,1},1}}
@@ -78,6 +80,47 @@ end
 
 function newplot()
     return Plots.plot(size=[1200,1000])
+end
+
+@recipe function f(osmdata::OSMData, access::Dict{String, Symbol}=ACCESS["motorcar"])
+    hasaccess(ty::String) = !(access[ty] == :no)
+    hasaccess(pair::Pair{String, Symbol}) = pair.second != :no
+    accessable = filter(hasaccess, access)
+    for pathtype in collect(keys(accessable))
+        tags(w::Int) = get(osmdata.tags, w, Dict{String,String}())
+        isfeature(w::Int) = get(tags(w), "highway", "") == pathtype
+        wayids = filter(isfeature, collect(keys(osmdata.tags)))
+        
+        numnodes = length(keys(osmdata.nodes))
+
+        lats = Array{Array{Float64, 1},1}()
+        lons = Array{Array{Float64, 1},1}()
+        # baseplot = plotfeature(osmdata, "highway", pathtype, baseplot, color=MAP_COLORS[pathtype]; kwargs...)
+        for wayid in wayids
+            lat = Array{Float64,1}()
+            lon = Array{Float64,1}()
+            # println("looking for $wayid")
+            way = get(osmdata.ways, wayid, Array{Float64,1}(undef,1))
+            # way = osmdata.ways[wayid]
+            for ii in 1:length(way)
+                if haskey(osmdata.nodes, way[ii])
+                    (nodelat, nodelon) = osmdata.nodes[way[ii]]
+                    push!(lat, nodelat)
+                    push!(lon, nodelon)
+                else
+                    # println("couldn't find node $(way[ii])")
+                end
+            end
+            push!(lats, lat)
+            push!(lons, lon)
+        end
+        @series begin
+            color := MAP_COLORS[pathtype]
+            label := ""
+            lons, lats
+        end
+    end
+
 end
 
 function plotosm(osmdata::OSMData; access::Dict{String, Symbol}=ACCESS["motorcar"], baseplot::Plots.Plot=newplot(), kwargs...)
