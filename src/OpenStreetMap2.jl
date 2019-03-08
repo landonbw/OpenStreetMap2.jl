@@ -10,10 +10,10 @@ module OpenStreetMap2
     DataStructures,
     Compat,
     SparseArrays,
-    Plots,
     LinearAlgebra,
     NearestNeighbors,
-    RecipesBase
+    RecipesBase,
+    Statistics
 
     Plots.gr()
     include("types.jl")
