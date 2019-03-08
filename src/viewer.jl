@@ -59,5 +59,4 @@ end
         end
         count += 1
     end
-    # p = Plots.plot!(baseplot, lons, lats; kwargs...)
 end
