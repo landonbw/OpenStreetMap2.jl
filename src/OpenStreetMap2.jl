@@ -15,7 +15,6 @@ module OpenStreetMap2
     RecipesBase,
     Statistics
 
-    Plots.gr()
     include("types.jl")
     include("io.jl")
     include("access.jl")

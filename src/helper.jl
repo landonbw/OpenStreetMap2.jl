@@ -60,9 +60,11 @@ function getdestinations(osmdata::OSMData, key::String, value::String)
     pointset = getwaypoints(osmdata, key, value)
     ret = Array{Float64, 2}(undef, 0, 3)
     for set in pointset
-        latlon = Statistics.mean(set, dims=1)
-        area = shoelacearea(set[:,1], set[:,2])
-        ret = vcat(ret, [latlon[1] latlon[2] area])
+        if length(set) > 0
+            latlon = Statistics.mean(set, dims=1)
+            area = shoelacearea(set[:,1], set[:,2])
+            ret = vcat(ret, [latlon[1] latlon[2] area])
+        end
     end
     return ret
 end
