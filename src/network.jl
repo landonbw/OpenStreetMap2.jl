@@ -2,8 +2,8 @@ struct OSMNetwork
     g::LightGraphs.DiGraph
     data::OSMData
     distmx::SparseArrays.SparseMatrixCSC{Float64, Int}
-    nodeid::Dict{Int,Int} # osm_id -> node_id
-    nodesource::Dict{Int, Int} # node_id -> osm_id
+    nodeid::Dict{Int,Int} # LGnode_id -> osm_id
+    nodesource::Dict{Int, Int} # osm_id -> LGnode_id
     connectednodes::Vector{Int}
     wayids::Vector{Int} # [osm_id, ... osm_id]
     nntree::NearestNeighbors.KDTree
