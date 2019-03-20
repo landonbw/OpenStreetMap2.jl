@@ -28,6 +28,14 @@ end
 
 end
 
+@recipe function f(network::OSMNetwork)
+    @series begin
+        x := network.data
+        y := network.access
+    end
+end
+
+
 @userplot drawfeature
 
 @recipe function f(h::drawfeature)
