@@ -62,8 +62,10 @@ end
 
 function quickestpath(network::OSMNetwork, source::Int64, destination::Int64,
     speeddict::Union{Dict{String, Float64}, Dict{Symbol, Float64}}=SPEEDLIMIT_RURAL)
-
-    speedmatrix = network.distmx .* constructspeedmatrix(network, speeddict)
+    if size(network.speedmatrix)[1] < 1        
+        network.speedmatrix = constructspeedmatrix(network)
+    end
+    speedmatrix = network.distmx .* network.speedmatrix
     if source == destination
         return [], 0, 0
     end

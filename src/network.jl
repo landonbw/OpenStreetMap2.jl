@@ -1,4 +1,4 @@
-struct OSMNetwork
+mutable struct OSMNetwork
     g::LightGraphs.DiGraph
     data::OSMData
     distmx::SparseArrays.SparseMatrixCSC{Float64, Int}
@@ -8,6 +8,7 @@ struct OSMNetwork
     wayids::Vector{Int} # [osm_id, ... osm_id]
     nntree::NearestNeighbors.KDTree
     access::Dict{String,Symbol}
+    speedmatrix::SparseArrays.SparseMatrixCSC{Float64, Int}
     # edgeid::Dict{Tuple{Int,Int},Int}
 end
 
@@ -83,7 +84,7 @@ function osmnetwork(osmdata::OSMData, access::Dict{String,Symbol}=ACCESS["all"])
     tree = NearestNeighbors.KDTree(latlonarray; leafsize=30000)
 
     OSMNetwork(LightGraphs.SimpleDiGraph(distmx), osmdata, distmx, mapgraphtoosmid,
-                maposmidtograph, roadnodes, wayids, tree, access)
+                maposmidtograph, roadnodes, wayids, tree, access, SparseArrays.sparse([]))
 end
 
 
