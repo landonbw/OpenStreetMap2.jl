@@ -57,14 +57,20 @@ shoelacearea(x, y) =
 where size is area of the polygon and lat lon is the average area of the points
 for a given way.  If the way has less than 3 points the area is zero"""
 function getdestinations(osmdata::OSMData, key::String, value::String)
-    pointset = getwaypoints(osmdata, key, value)
-    ret = Array{Float64, 2}(undef, 0, 3)
-    for set in pointset
-        if length(set) > 0
-            latlon = Statistics.mean(set, dims=1)
-            area = shoelacearea(set[:,1], set[:,2])
-            ret = vcat(ret, [latlon[1] latlon[2] area])
+    
+    if !((key, value) in keys(osmdata.destinations))
+        pointset = getwaypoints(osmdata, key, value)
+        ret = Array{Float64, 2}(undef, 0, 3)
+        for set in pointset
+            if length(set) > 0
+                latlon = Statistics.mean(set, dims=1)
+                area = shoelacearea(set[:,1], set[:,2])
+                ret = vcat(ret, [latlon[1] latlon[2] area])
+            end
         end
+        osmdata.destinations[(key, value)] = ret
+    else
+        ret = osmdata.destinations[(key, value)]
     end
     return ret
 end
