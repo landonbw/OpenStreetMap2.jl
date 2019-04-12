@@ -69,10 +69,13 @@ function quickestpath(network::OSMNetwork, source::Int64, destination::Int64,
     if source == destination
         return [], [0], [0]
     end
-
     path = shortestpath(network, source, destination, speedmatrix)
+    if length(path) < 1
+        return [], [0], [0]
+    end
     time = Array{Float64, 1}(undef, length(path)-1)
     dist = Array{Float64, 1}(undef, length(path)-1)
+    
     for i=1:length(path)-1
         time[i] = speedmatrix[path[i], path[i+1]]
         dist[i] = network.distmx[path[i], path[i+1]]
