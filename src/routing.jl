@@ -54,9 +54,9 @@ function shortestpath(network::OSMNetwork, source::Int64, destination::Int64, di
     path = LightGraphs.enumerate_paths(LightGraphs.dijkstra_shortest_paths(network.g, source, distmx), destination)
     if (length(path) < 1) && (source != destination)
         @warn "No path found from $source to $destination, attempting on undirected graph"
-        path = LightGraphs.enumerate_paths(LightGraphs.dijkstra_shortest_paths(LightGraphs.SimpleGraph(network.g), source, distmx), destination)
+        path = LightGraphs.enumerate_paths(LightGraphs.dijkstra_shortest_paths(LightGraphs.SimpleGraph(network.g), source, LinearAlgebra.Symmetric(distmx)), destination)
     end
-    return(path)
+    return path
 end
 
 function shortestpath(network::OSMNetwork, source::Tuple{Float64, Float64}, destination::Tuple{Float64, Float64})
@@ -64,6 +64,17 @@ function shortestpath(network::OSMNetwork, source::Tuple{Float64, Float64}, dest
     dst = network.nodesource[treenearestnode(network, destination)]
     return shortestpath(network, src, dst)
 end
+
+function pathtimedist(path::Array{Int, 1}, speedmx::SparseArrays.SparseMatrixCSC{Float64, Int64}, distmx::SparseArrays.SparseMatrixCSC{Float64, Int64})
+    time = Array{Float64, 1}(undef, length(path)-1)
+    dist = Array{Float64, 1}(undef, length(path)-1)
+    for i=1:length(path)-1
+        time[i] = speedmx[path[i], path[i+1]]
+        dist[i] = distmx[path[i], path[i+1]]
+    end
+    return time, dist
+end
+
 
 function quickestpath(network::OSMNetwork, source::Int64, destination::Int64,
     speeddict::Union{Dict{String, Float64}, Dict{Symbol, Float64}}=SPEEDLIMIT_RURAL)
@@ -78,17 +89,16 @@ function quickestpath(network::OSMNetwork, source::Int64, destination::Int64,
     if length(path) < 1
         return [], [0], [0]
     end
-    time = Array{Float64, 1}(undef, length(path)-1)
-    dist = Array{Float64, 1}(undef, length(path)-1)
+    # time = Array{Float64, 1}(undef, length(path)-1)
+    # dist = Array{Float64, 1}(undef, length(path)-1)
     
-    for i=1:length(path)-1
-        time[i] = speedmatrix[path[i], path[i+1]]
-        dist[i] = network.distmx[path[i], path[i+1]]
-    end
-    # time = 10
-    if sum(time) == sum(dist) == 0 && length(path) > 0
-        time = [Inf]
-        dist = [Inf]
+    # for i=1:length(path)-1
+    #     time[i] = speedmatrix[path[i], path[i+1]]
+    #     dist[i] = network.distmx[path[i], path[i+1]]
+    # end
+    time, dist = pathtimedist(path, speedmatrix, network.distmx)
+    if sum(time) == sum(dist) == 0 && length(path) > 0 && source != destination
+        return [], [Inf], [Inf]
     end
     return path, time, dist
 end
@@ -129,7 +139,7 @@ end
 """
 Creates the speed matrix that can be used to determine time to travel to a given location
 note that because julia's sparse arrays don't currently support broacasted division very well
-we the matrix actually stores the inverse speed.
+the matrix actually stores the inverse speed.
 """
 function constructspeedmatrix(network::OSMNetwork,
     speeddict::Union{Dict{String, Float64}, Dict{Symbol, Float64}}=SPEEDLIMIT_RURAL)
@@ -158,6 +168,9 @@ function constructspeedmatrix(network::OSMNetwork,
         for n in 2:length(way)
             push!(edgestart, way[n-1])
             push!(edgeend, way[n])
+            push!(edgestart, way[n])
+            push!(edgeend, way[n-1])
+            push!(edgespeed, speed)
             push!(edgespeed, speed)
         end
     end
@@ -166,5 +179,5 @@ function constructspeedmatrix(network::OSMNetwork,
     ee = get.(Ref(network.nodesource), edgeend, 0)
     # println(size(es),size(ee),size(edgespeed))
     # println(findall(ee.>1317))
-    speedmx = SparseArrays.sparse([es;ee], [ee;es], 1.0./[edgespeed;edgespeed])
+    speedmx = SparseArrays.sparse([es;ee], [ee;es], 1.0./[edgespeed;edgespeed], maximum(es), maximum(ee), max)
 end

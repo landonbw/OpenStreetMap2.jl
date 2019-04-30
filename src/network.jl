@@ -71,8 +71,9 @@ function osmnetwork(osmdata::OSMData, access::Dict{String,Symbol}=ACCESS["all"])
     # [println(i) for i in I]
     Iids = [findfirst(!iszero, roadnodes.==node) for node in I]
     Jids = [findfirst(!iszero, roadnodes.==node) for node in J]
-    # distmx = SparseArrays.sparse(I,J,[distance(i,j) for (i,j) in zip(I,J)],numnodes,numnodes)
-    distmx = SparseArrays.sparse(Iids, Jids, [distance(i,j) for (i,j) in zip(I,J)], length(roadnodes), length(roadnodes))
+    distances = [distance(i,j) for (i,j) in zip(I,J)]
+    distmx = SparseArrays.sparse(I,J,distances,numnodes,numnodes)
+    distmxSym = SparseArrays.sparse([Iids;Jids], [Jids;Iids], [distances;distances], length(roadnodes), length(roadnodes), max)
     mapgraphtoosmid = Dict(zip(1:length(roadnodes), roadnodes))
     maposmidtograph = Dict(zip(roadnodes, 1:length(roadnodes)))
     latlonarray = Array{Float64, 2}(undef, 2, length(roadnodes))
@@ -83,7 +84,7 @@ function osmnetwork(osmdata::OSMData, access::Dict{String,Symbol}=ACCESS["all"])
     end
     tree = NearestNeighbors.KDTree(latlonarray; leafsize=30000)
 
-    OSMNetwork(LightGraphs.SimpleDiGraph(distmx), osmdata, distmx, mapgraphtoosmid,
+    OSMNetwork(LightGraphs.SimpleDiGraph(distmx), osmdata, distmxSym, mapgraphtoosmid,
                 maposmidtograph, roadnodes, wayids, tree, access, SparseArrays.sparse([]))
 end
 

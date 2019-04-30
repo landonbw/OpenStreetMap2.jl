@@ -74,3 +74,7 @@ function getdestinations(osmdata::OSMData, key::String, value::String)
     end
     return ret
 end
+
+function max(a::Real, b::Real)
+    return maximum([a,b])
+end
