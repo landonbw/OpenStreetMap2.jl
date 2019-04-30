@@ -51,7 +51,12 @@ end
 Find the shortest path between a source and destination
 """
 function shortestpath(network::OSMNetwork, source::Int64, destination::Int64, distmx=network.distmx)
-    return LightGraphs.enumerate_paths(LightGraphs.dijkstra_shortest_paths(network.g, source, distmx), destination)
+    path = LightGraphs.enumerate_paths(LightGraphs.dijkstra_shortest_paths(network.g, source, distmx), destination)
+    if (length(path) < 1) && (source != destination)
+        @warn "No path found from $source to $destination, attempting on undirected graph"
+        path = LightGraphs.enumerate_paths(LightGraphs.dijkstra_shortest_paths(LightGraphs.SimpleGraph(network.g), source, distmx), destination)
+    end
+    return(path)
 end
 
 function shortestpath(network::OSMNetwork, source::Tuple{Float64, Float64}, destination::Tuple{Float64, Float64})
@@ -63,7 +68,7 @@ end
 function quickestpath(network::OSMNetwork, source::Int64, destination::Int64,
     speeddict::Union{Dict{String, Float64}, Dict{Symbol, Float64}}=SPEEDLIMIT_RURAL)
     if size(network.speedmatrix)[1] < 1        
-        network.speedmatrix = constructspeedmatrix(network)
+        network.speedmatrix = constructspeedmatrix(network, speeddict)
     end
     speedmatrix = network.distmx .* network.speedmatrix
     if source == destination
