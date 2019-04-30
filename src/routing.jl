@@ -167,10 +167,7 @@ function constructspeedmatrix(network::OSMNetwork,
         end
         for n in 2:length(way)
             push!(edgestart, way[n-1])
-            push!(edgeend, way[n])
             push!(edgestart, way[n])
-            push!(edgeend, way[n-1])
-            push!(edgespeed, speed)
             push!(edgespeed, speed)
         end
     end
