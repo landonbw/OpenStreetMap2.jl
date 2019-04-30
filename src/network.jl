@@ -72,7 +72,7 @@ function osmnetwork(osmdata::OSMData, access::Dict{String,Symbol}=ACCESS["all"])
     Iids = [findfirst(!iszero, roadnodes.==node) for node in I]
     Jids = [findfirst(!iszero, roadnodes.==node) for node in J]
     distances = [distance(i,j) for (i,j) in zip(I,J)]
-    distmx = SparseArrays.sparse(I,J,distances,numnodes,numnodes)
+    distmx = SparseArrays.sparse(Iids,Jids,distances,numnodes,numnodes)
     distmxSym = SparseArrays.sparse([Iids;Jids], [Jids;Iids], [distances;distances], length(roadnodes), length(roadnodes), max)
     mapgraphtoosmid = Dict(zip(1:length(roadnodes), roadnodes))
     maposmidtograph = Dict(zip(roadnodes, 1:length(roadnodes)))
