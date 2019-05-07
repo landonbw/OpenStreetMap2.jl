@@ -54,7 +54,7 @@ function shortestpath(network::OSMNetwork, source::Int64, destination::Int64, di
     path = LightGraphs.enumerate_paths(LightGraphs.dijkstra_shortest_paths(network.g, source, distmx), destination)
     if (length(path) < 1) && (source != destination)
         @warn "No path found from $source to $destination, attempting on undirected graph"
-        path = LightGraphs.enumerate_paths(LightGraphs.dijkstra_shortest_paths(LightGraphs.SimpleGraph(network.g), source, LinearAlgebra.Symmetric(distmx)), destination)
+        path = LightGraphs.enumerate_paths(LightGraphs.dijkstra_shortest_paths(LightGraphs.SimpleGraph(network.g), source, distmx), destination)
     end
     return path
 end
@@ -167,14 +167,15 @@ function constructspeedmatrix(network::OSMNetwork,
         end
         for n in 2:length(way)
             push!(edgestart, way[n-1])
-            push!(edgestart, way[n])
+            push!(edgeend, way[n])
             push!(edgespeed, speed)
         end
     end
     # return edgestart, edgeend, edgespeed
     es = get.(Ref(network.nodesource), edgestart, 0)
     ee = get.(Ref(network.nodesource), edgeend, 0)
-    # println(size(es),size(ee),size(edgespeed))
+    println(size(es),size(ee),size(edgespeed))
+    println(maximum([ee;es]))
     # println(findall(ee.>1317))
-    speedmx = SparseArrays.sparse([es;ee], [ee;es], 1.0./[edgespeed;edgespeed], maximum(es), maximum(ee), max)
+    speedmx = SparseArrays.sparse([es;ee], [ee;es], 1.0./[edgespeed;edgespeed], maximum([es;ee]), maximum([es;ee]), max)
 end
