@@ -75,11 +75,15 @@ function pathtimedist(path::Array{Int, 1}, speedmx::SparseArrays.SparseMatrixCSC
     return time, dist
 end
 
+function recalcSpeedMatrix(network::OSMNetwork, speeddict::Union{Dict{String, Float64}, Dict{Symbol, Float64}}=SPEEDLIMIT_RURAL)
+    network.speedmatrix = constructspeedmatrix(network, speeddict)
+end
+
 
 function quickestpath(network::OSMNetwork, source::Int64, destination::Int64,
     speeddict::Union{Dict{String, Float64}, Dict{Symbol, Float64}}=SPEEDLIMIT_RURAL)
     if size(network.speedmatrix)[1] < 1        
-        network.speedmatrix = constructspeedmatrix(network, speeddict)
+        recalcSpeedMatrix(network, speeddict)
     end
     speedmatrix = network.distmx .* network.speedmatrix
     if source == destination
@@ -119,7 +123,8 @@ function nearestnode(network::OSMNetwork, coords::Tuple{Float64, Float64})
     # idxinset = findall(x -> x in roadnodes, network.data.nodes.id)
     # nodes = get.(network.data.nodes,
     # nodes = network.data.nodes.id[idxinset]
-    latlons = get.(network.data.nodes, roadnodes, 99999)
+    latlons = [get(network.data.nodes, x, 99999) for x in roadnodes]
+    # latlons = get.(network.data.nodes, roadnodes, 99999)
     nodelats = [a[1] for a in latlons]
     nodelons = [a[2] for a in latlons]
     distances = [LinearAlgebra.norm(collect(coords) - [a, b]) for (a,b) in zip(nodelats, nodelons)]
