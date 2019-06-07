@@ -159,7 +159,7 @@ readxmlfile(filename::String, osmdata::OSMData = OSMData()) =
     readxmlstream(open(filename, "r"), osmdata)
 
 "Returns the overpass query within `bounds`"
-function overpassquery(bounds::String; timeout::Int = 25)
+function overpassquery(bounds::String; timeout::Int = 75)
     result = HTTP.get(
         "https://overpass-api.de/api/interpreter",
         query = Dict("data" => """

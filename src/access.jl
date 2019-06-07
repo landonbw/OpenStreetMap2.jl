@@ -384,6 +384,7 @@ const SPEEDLIMIT_URBAN = Dict(
     :pedestrian     => 5.
 )
 
+
 const SPEEDLIMIT_RURAL = Dict(
     :motorway       => 110.,
     :trunk          => 90.,

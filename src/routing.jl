@@ -47,22 +47,28 @@ end
 #     shortestpath!(network, srcs, DijkstraState(parents,dists), threshold)
 # end
 
+function testthings(a=SPEEDLIMIT_URBAN)
+    return a
+end
+
 """
 Find the shortest path between a source and destination
 """
-function shortestpath(network::OSMNetwork, source::Int64, destination::Int64, distmx=network.distmx)
+function shortestpath(network::OSMNetwork, source::Int64, destination::Int64, distmx=network.distmx; warn=true)
     path = LightGraphs.enumerate_paths(LightGraphs.dijkstra_shortest_paths(network.g, source, distmx), destination)
     if (length(path) < 1) && (source != destination)
-        @warn "No path found from $source to $destination, attempting on undirected graph"
+        if warn
+            @warn "No path found from $source to $destination, attempting on undirected graph"
+        end
         path = LightGraphs.enumerate_paths(LightGraphs.dijkstra_shortest_paths(LightGraphs.SimpleGraph(network.g), source, distmx), destination)
     end
     return path
 end
 
-function shortestpath(network::OSMNetwork, source::Tuple{Float64, Float64}, destination::Tuple{Float64, Float64})
+function shortestpath(network::OSMNetwork, source::Tuple{Float64, Float64}, destination::Tuple{Float64, Float64}; warn=true)
     src = network.nodesource[treenearestnode(network, source)]
     dst = network.nodesource[treenearestnode(network, destination)]
-    return shortestpath(network, src, dst)
+    return shortestpath(network, src, dst, warn=warn)
 end
 
 function pathtimedist(path::Array{Int, 1}, speedmx::SparseArrays.SparseMatrixCSC{Float64, Int64}, distmx::SparseArrays.SparseMatrixCSC{Float64, Int64})
@@ -75,13 +81,13 @@ function pathtimedist(path::Array{Int, 1}, speedmx::SparseArrays.SparseMatrixCSC
     return time, dist
 end
 
-function recalcSpeedMatrix(network::OSMNetwork, speeddict::Union{Dict{String, Float64}, Dict{Symbol, Float64}}=SPEEDLIMIT_RURAL)
+function recalcSpeedMatrix(network::OSMNetwork, speeddict::Union{Dict{String, Float64}, Dict{Symbol, Float64}}=SPEEDLIMIT_URBAN)
     network.speedmatrix = constructspeedmatrix(network, speeddict)
 end
 
 
 function quickestpath(network::OSMNetwork, source::Int64, destination::Int64,
-    speeddict::Union{Dict{String, Float64}, Dict{Symbol, Float64}}=SPEEDLIMIT_RURAL)
+    speeddict::Union{Dict{String, Float64}, Dict{Symbol, Float64}}=SPEEDLIMIT_URBAN; warn=true)
     if size(network.speedmatrix)[1] < 1        
         recalcSpeedMatrix(network, speeddict)
     end
@@ -89,7 +95,7 @@ function quickestpath(network::OSMNetwork, source::Int64, destination::Int64,
     if source == destination
         return [], [0], [0]
     end
-    path = shortestpath(network, source, destination, speedmatrix)
+    path = shortestpath(network, source, destination, speedmatrix, warn=warn)
     if length(path) < 1
         return [], [0], [0]
     end
@@ -107,10 +113,10 @@ function quickestpath(network::OSMNetwork, source::Int64, destination::Int64,
     return path, time, dist
 end
 
-function quickestpath(network::OSMNetwork, source::Tuple{Float64, Float64}, destination::Tuple{Float64, Float64})
+function quickestpath(network::OSMNetwork, source::Tuple{Float64, Float64}, destination::Tuple{Float64, Float64}; warn=true)
     src = network.nodesource[treenearestnode(network, source)]
     dst = network.nodesource[treenearestnode(network, destination)]
-    return quickestpath(network, src, dst)
+    return quickestpath(network, src, dst, warn=warn)
 end
 
 """
@@ -147,7 +153,7 @@ note that because julia's sparse arrays don't currently support broacasted divis
 the matrix actually stores the inverse speed.
 """
 function constructspeedmatrix(network::OSMNetwork,
-    speeddict::Union{Dict{String, Float64}, Dict{Symbol, Float64}}=SPEEDLIMIT_RURAL)
+    speeddict::Union{Dict{String, Float64}, Dict{Symbol, Float64}}=SPEEDLIMIT_URBAN)
     access = network.access
     tags(w::Int) = get(network.data.tags, w, Dict{String,String}())
     lookup(tags::Dict{String,String}, k::String) = get(tags, k, "")
