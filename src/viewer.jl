@@ -15,15 +15,31 @@ end
         isfeature(w::Int) = get(tags(w), "highway", "") == pathtype
         wayids = filter(isfeature, collect(keys(osmdata.tags)))
         numnodes = length(keys(osmdata.nodes))
-        for wayid in wayids
 
+        lats = []
+        lons = []
+        for wayid in wayids
             lat, lon = wayidtopoints(osmdata, wayid)
-            @series begin
-                color := MAP_COLORS[pathtype]
-                label := ""
-                lon, lat
-            end
+            lats = vcat(lats, lat)
+            lons = vcat(lons, lon)
+            push!(lats, NaN)
+            push!(lons, NaN)
         end
+        @series begin
+            color := MAP_COLORS[pathtype]
+            label := ""
+            lons, lats
+        end
+
+        # for wayid in wayids
+
+        #     lat, lon = wayidtopoints(osmdata, wayid)
+        #     @series begin
+        #         color := MAP_COLORS[pathtype]
+        #         label := ""
+        #         lon, lat
+        #     end
+        # end
     end
 
 end
